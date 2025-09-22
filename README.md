@@ -22,8 +22,16 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 ### Required Software
 ```bash
 # Install required tools
-conda install -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit mafft blast raxml
-pip install eggnog-mapper
+ mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc 
+# Clean shell
+mamba deactivate
+conda deactivate
+source ~/.bashrc
+mamba activate meta_pipeline
+# Install mafft from source
+wget https://mafft.cbrc.jp/alignment/software/mafft-7.525-with-extensions-src.tgz
+# follow the indication for non-root user [here](https://mafft.cbrc.jp/alignment/software/installation_without_root.html)
+
 ```
 
 ### Required Databases
