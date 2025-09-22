@@ -18,11 +18,18 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [References](#references)
 
 ## Prerequisites
+- Miniconda
 - FastQC v0.12.1
 - fastp 0.24.0
 - Kaiju 1.10.1
-- 
+- SingleM v0.19.0
+
+
 ### Required Software
+Install conda
+
+If you do not have the conda package manager installed already, follow the instructions to install [Miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/).
+
 ```bash
 # Install required tools
 mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc 
@@ -34,7 +41,13 @@ mamba activate meta_pipeline
 # Install mafft from source
 wget https://mafft.cbrc.jp/alignment/software/mafft-7.525-with-extensions-src.tgz
 # follow the indication for non-root user [here](https://mafft.cbrc.jp/alignment/software/installation_without_root.html)
-
+# Install singleM in our env because trouble with meta_pipeline env
+mamba create -c conda-forge -c bioconda --override-channels --name singlem singlem'>='0.19.0
+# Again clean shell
+mamba deactivate
+conda deactivate
+source ~/.bashrc
+mamba activate singlem
 ```
 
 ### Required Databases
@@ -60,20 +73,8 @@ download_eggnog_data.py -y
     # The size of eggNOG diamond/mmseqs databases created with create_dbs.py is highly variable, depending on the size of the chosen taxonomic groups.
 
 # For singlem you need
-    #GTDB-Tk v2.4.1 requires ~140G of external data which needs to be downloaded and extracted.
-    #This can be done automatically, or manually.
-
-    # Automatic: Run the command "download-db.sh" to automatically download and extract to: /home/user/miniconda3/envs/singlem/share/gtdbtk-2.4.1/db/
-    # Manual: 
-        #1. Manually download the latest reference data:
-            #wget https://data.gtdb.ecogenomic.org/releases/release226/226.0/auxillary_files/gtdbtk_package/full_package/gtdbtk_r226_data.tar.gz
-
-        #2. Extract the archive to a target directory:
-            #tar -xvzf gtdbtk_r226_data.tar.gz -C "/path/to/target/db" --strip 1 > /dev/null
-            #rm gtdbtk_r226_data.tar.gz
-
-        #3. Set the GTDBTK_DATA_PATH environment variable by running:
-            #conda env config vars set GTDBTK_DATA_PATH="/path/to/target/db"
+mamba activate singlem
+singlem data --output-directory singlem_data
 
 ```
 
@@ -153,18 +154,22 @@ kaiju2table \
 
 ## 3. Diversity Analysis
 
-Profile alpha diversity using single marker genes and detect eukaryotic sequences with [SingleM](https://github.com/wwood/singlem), [EukDetect](https://github.com/allind/EukDetect), and [Metaxa2](https://microbiology.se/software/metaxa2/).
+Profile alpha diversity using single marker genes [SingleM](https://github.com/wwood/singlem), and detect eukaryotic sequences with [EukDetect](https://github.com/allind/EukDetect), auxiliary program [Metaxa2](https://microbiology.se/software/metaxa2/).
 
 ```bash
 #!/bin/bash
 
 # SingleM for alpha diversity profiling
 # Generates OTU tables from single marker genes
+# Recomended use raw reads
+# export database variable
+export SINGLEM_METAPACKAGE_PATH='/home/user/singlem_data/S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb
+# run singlem 
 singlem pipe \
-    --forward ${QC_R1} \
-    --reverse ${QC_R2} \
+    -1 ${RAW_R1} \
+    -2 ${RAW_R2} \
     --otu-table otu.table.tsv \
-    --threads 4
+    --threads 4 # # Number of parallel threads that you have available
 
 # Eukaryote detection with EukDetect
 # Detects eukaryotic sequences in metagenomic datasets
