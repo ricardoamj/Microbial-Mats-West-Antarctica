@@ -23,6 +23,7 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - fastp 0.24.0
 - Kaiju 1.10.1
 - SingleM v0.19.0
+- 
 
 
 ### Required Software
@@ -50,6 +51,22 @@ mamba deactivate
 conda deactivate
 source ~/.bashrc
 mamba activate singlem
+
+# Install EukDetect
+# Please redirect to [EukDetect install](https://github.com/allind/EukDetect?tab=readme-ov-file#installation) follow the indications
+# We create a env in conda with Python 3.5 (last compatible version)
+conda create -n eukdetect python=3.5
+conda activate eukdetect
+# Install dependencies in specific order
+conda install -c conda-forge mmtf-python=1.0.2
+conda install -c bioconda biopython=1.70
+conda install -c conda-forge ete3=3.1.1
+
+# Run in folder install EukDetect
+python setup.py install
+
+# Modify default_configfile.yml to run your datasets
+
 ```
 
 ### Required Databases
@@ -135,11 +152,13 @@ NAMES_DMP="names.dmp"
 
 # Taxonomic classification with Kaiju
 # Uses NCBI nr 2021-02 database with default parameters
+# pre-trimming reads not recommended
+
 kaiju \
     -t ${NODES_DMP} \
     -f ${KAIJU_DB} \
-    -i ${QC_R1} \
-    -j ${QC_R2} \
+    -i ${RAW_R1} \
+    -j ${RAW_R2} \
     -o kaiju.out \
     -z 16  # Number of parallel threads that you have available
 
@@ -175,6 +194,8 @@ singlem pipe \
 
 # Eukaryote detection with EukDetect
 # Detects eukaryotic sequences in metagenomic datasets
+
+conda activate eukdetect
 eukdetect \
     --mode runall \
     --configfile [config file] \
