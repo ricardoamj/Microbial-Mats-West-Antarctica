@@ -57,17 +57,9 @@ mamba activate singlem
 
 # Install EukDetect
 # Please redirect to [EukDetect install](https://github.com/allind/EukDetect?tab=readme-ov-file#installation) follow the indications
-# We create a env in conda with Python 3.5 (last compatible version)
-conda create -n eukdetect python=3.5
-conda activate eukdetect
-# Install dependencies in specific order
-conda install -c conda-forge mmtf-python=1.0.2
-conda install -c bioconda biopython=1.70
-conda install -c conda-forge ete3=3.1.1
-
+# We create a env in miniconda 
 # Run in folder install EukDetect
 python setup.py install
-
 # Modify default_configfile.yml to run your datasets
 
 ```
