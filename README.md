@@ -50,6 +50,16 @@ tar -xzf kaiju_db_nr_euk_2021-02-24.tgz
 
 # Download eggNOG database
 download_eggnog_data.py -y
+
+# Storage Requirements for eggnog_data
+
+    # ~40 GB for the eggNOG annotation databases (eggnog.db and eggnog.taxa.db)
+    # ~9 GB for Diamond database of eggNOG sequences (required if using -m diamond, which is the default search mode).
+    # ~11 GB for MMseqs2 database of eggNOG sequences (~86 GB if MMseqs2 index is created) (required if using -m mmseqs).
+    # ~3 GB for PFAM database (required if using --pfam_realign options for realignment of queries to PFAM domains).
+    # The size of eggNOG diamond/mmseqs databases created with create_dbs.py is highly variable, depending on the size of the chosen taxonomic groups.
+
+
 ```
 
 ## 1. Quality Control and Preprocessing
