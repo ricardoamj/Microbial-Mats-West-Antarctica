@@ -30,6 +30,10 @@ We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 
 - Metaxa2 v2.2.3
 - MEGAHIT v1.2.9
 - SPAdes genome assembler v3.15.4 [metaSPAdes mode]
+- AUGUSTUS (3.5.0)
+- PRODIGAL v2.6.3
+- getorf EMBOSS:6.6.0.0
+- 
 
 
 ### Required Software
@@ -325,12 +329,9 @@ Cluster predicted genes with [MMseqs2](https://github.com/soedinglab/MMseqs2) an
 ```bash
 #!/bin/bash
 
-# Combine all predicted genes
-cat eukaryotic_genes.faa prokaryotic_genes.faa unclassified_orfs.faa > all_genes.faa
-
-# Cluster genes to reduce redundancy
+# Cluster prediction genes to reduce redundancy
 # 40% identity and 80% coverage threshold
-mmseqs createdb all_genes.faa all_genes_db
+mmseqs createdb predicted_genes.faa all_genes_db
 mmseqs cluster all_genes_db clustered_db tmp \
     --min-seq-id 0.4 \
     --coverage-mode 1 \
@@ -349,9 +350,6 @@ emapper.py \
     --cpu 4 \
     --override
 
-# Calculate GPM (Genes Per Million) values
-# GPM = (counts of gene X / total number of paired reads) * 1,000,000
-python calculate_gpm.py  # Custom script for GPM calculation
 ```
 
 ## 7. rRNA Analysis
@@ -398,7 +396,7 @@ blastn \
     -db nt \
     -out rRNA_blast_results.txt \
     -outfmt 6 \
-    -evalue 1e-5 \
+    -evalue 1e-10 \
     -num_threads 4
 ```
 
@@ -432,93 +430,9 @@ raxml \
 
 # Visualize tree in FigTree (GUI application)
 # Load RAxML_bipartitions.adineta_tree in FigTree
+
 ```
 
-## Custom Scripts
-
-### separate_contigs.py
-```python
-#!/usr/bin/env python3
-"""
-Separate contigs based on Kaiju taxonomic classification
-"""
-
-import sys
-from Bio import SeqIO
-
-def separate_contigs(contig_file, kaiju_output, output_prefix):
-    """Separate contigs into eukaryotic, prokaryotic, and unassigned"""
-    
-    # Parse Kaiju output
-    classifications = {}
-    with open(kaiju_output, 'r') as f:
-        for line in f:
-            parts = line.strip().split('\t')
-            if parts[0] == 'C':  # Classified
-                contig_id = parts[1]
-                taxonomy = parts[2]
-                classifications[contig_id] = taxonomy
-    
-    # Separate contigs
-    euk_contigs = []
-    prok_contigs = []
-    unassigned_contigs = []
-    
-    for record in SeqIO.parse(contig_file, "fasta"):
-        contig_id = record.id
-        if contig_id in classifications:
-            taxonomy = classifications[contig_id]
-            if 'Eukaryota' in taxonomy:
-                euk_contigs.append(record)
-            else:
-                prok_contigs.append(record)
-        else:
-            unassigned_contigs.append(record)
-    
-    # Write separated files
-    SeqIO.write(euk_contigs, f"{output_prefix}_eukaryotic.fa", "fasta")
-    SeqIO.write(prok_contigs, f"{output_prefix}_prokaryotic.fa", "fasta")  
-    SeqIO.write(unassigned_contigs, f"{output_prefix}_unassigned.fa", "fasta")
-
-if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python separate_contigs.py <contigs.fa> <kaiju.out> <output_prefix>")
-        sys.exit(1)
-    
-    separate_contigs(sys.argv[1], sys.argv[2], sys.argv[3])
-```
-
-### calculate_gpm.py  
-```python
-#!/usr/bin/env python3
-"""
-Calculate GPM (Genes Per Million) values
-GPM = (counts of gene X / total number of paired reads) * 1,000,000
-"""
-
-import pandas as pd
-import sys
-
-def calculate_gpm(gene_counts_file, total_reads, output_file):
-    """Calculate GPM values for gene counts"""
-    
-    # Read gene counts
-    df = pd.read_csv(gene_counts_file, sep='\t')
-    
-    # Calculate GPM
-    df['GPM'] = (df['gene_counts'] / total_reads) * 1000000
-    
-    # Save results
-    df.to_csv(output_file, sep='\t', index=False)
-    print(f"GPM values calculated and saved to {output_file}")
-
-if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python calculate_gpm.py <gene_counts.tsv> <total_reads> <output.tsv>")
-        sys.exit(1)
-    
-    calculate_gpm(sys.argv[1], int(sys.argv[2]), sys.argv[3])
-```
 
 ## References
 
