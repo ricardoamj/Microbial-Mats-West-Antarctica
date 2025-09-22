@@ -28,7 +28,8 @@ We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 
 - SingleM v0.19.0
 - EukDetect v1.0.1
 - Metaxa2 v2.2.3
-- 
+- MEGAHIT v1.2.9
+- SPAdes genome assembler v3.15.4 [metaSPAdes mode]
 
 
 ### Required Software
@@ -215,9 +216,9 @@ metaxa2 \
 
 Assemble quality-controlled reads into contigs using [MEGAHIT](https://github.com/voutcn/megahit) and [metaSPAdes](https://github.com/ablab/spades).
 
-Key advantages of MegaHit is Computational efficiency: MegaHit is optimized to use memory very efficiently, allowing large datasets to be assembled.
+Key advantages of MEGAHIT is Computational efficiency: MegaHit is optimized to use memory very efficiently, allowing large datasets to be assembled.
 
-Advantages of metaspades: Low-abundance species: Better for detecting and assembling rare organisms in the community.
+Advantages of metaSPAdes: Low-abundance species: Better for detecting and assembling rare organisms in the community.
 Complex downstream analyses: When you need high-quality contigs for functional annotation, binning, or phylogenetic analyses.
 
 
@@ -238,10 +239,11 @@ CONTIGS="mat.sample/final.contigs.fa"
 
 # Assembly with metaSPAdes for better bin recovery
 metaspades.py \
-    --only-assembler \
-    -1 forward.paired-end.reads \
-    -2 reverse.paired-end.reads \
-    -o output.dir
+    --only-assembler \ #runs only assembling (without read error correction)
+    -1 forward.paired-end.reads \ #file with forward paired-end reads
+    -2 reverse.paired-end.reads \ #file with reverse paired-end reads
+    -o output.dir \ #output dir 
+    --threads 16 \ # <int> number of threads. [default: 16]
 ```
 
 ## 5. Gene Prediction
@@ -251,8 +253,46 @@ Predict genes from assembled contigs based on taxonomic classification. For euk 
 ```bash
 #!/bin/bash
 
-# Separate contigs by taxonomic assignment
-python separate_contigs.py  # Custom script to separate contigs
+# Filter contigs with less 1000 bp
+# For example with seqtk
+seqtk seq -L 1000 input.contigs.fasta > output.gt1k.contigs.fasta
+
+# Separate contigs by taxonomic assignment with kaiju
+
+kaiju \
+    -t nodes.dmp \
+    -f kaiju_db_nr_euk.fmi \
+    -i output.gt1k.contigs.fasta \
+    -o kaiju.classification \
+    -e 2 -m 15 -s 70 -E 1e-06 \
+        #run mode: Greedy
+         # minimum match length: 15
+         # seed length: 7
+         # minimum blosum62 score for matches: 70
+         # minimum E-value: 1e-06
+         # max number of mismatches within a match: 2
+    -v \ #verbose mode
+    -z 16 # number of threads
+
+# Annotate taxonomic name from kaiju.classification
+
+ kaiju-addTaxonNames \
+    -i kaiju.classification \
+    -o output.taxon.names \
+    -t nodes.dmp \
+    -n names.dmp \
+    -u \ # Unclassified are not contained in the output
+    -r superkingdom,phylum,class,order,family,genus \ #Print taxon path containing only ranks specified by a comma-separated list
+
+# Filter list contigs by Eukaryota, Bacteria or Unclass
+cat output.taxon.names | grep Eukaryota | cut -f2 | sort -u > list.contigs.Eukaryota
+cat output.taxon.names | egrep 'Archaea|Bacteria' | cut -f2 | sort -u > list.contigs.Prokaryota
+cut -f2 kaiju.classification | grep -v -F -w -f <(cat list.contigs.Prokaryota list.contigs.Eukaryota) > list.contigs.unclassified
+
+# Subseq contigs from lists
+seqtk subseq contigs.gt1k.fasta list.contigs.Prokaryota > contigs.gt1k.prok.fasta
+seqtk subseq contigs.gt1k.fasta list.contigs.Eukaryota > contigs.gt1k.euk.fasta
+seqtk subseq contigs.gt1k.fasta list.contigs.unclassified > contigs.gt1k.unclass.fasta
 
 # Gene prediction for eukaryotic contigs using Augustus
 augustus \
