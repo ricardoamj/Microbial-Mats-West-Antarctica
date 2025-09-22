@@ -26,6 +26,8 @@ We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 
 - fastp 0.24.0
 - Kaiju 1.10.1
 - SingleM v0.19.0
+- EukDetect v1.0.1
+- Metaxa2 v2.2.3
 - 
 
 
@@ -47,7 +49,7 @@ mamba activate meta_pipeline
 wget https://mafft.cbrc.jp/alignment/software/mafft-7.525-with-extensions-src.tgz
 # follow the indication for non-root user [here](https://mafft.cbrc.jp/alignment/software/installation_without_root.html)
 
-# Install singleM in our env because trouble with meta_pipeline env
+# Install SingleM in our environment to resolve meta_pipeline environment conflicts
 mamba create -c conda-forge -c bioconda --override-channels --name singlem singlem'>='0.19.0
 # Again clean shell
 mamba deactivate
@@ -61,6 +63,8 @@ mamba activate singlem
 # Run in folder install EukDetect
 python setup.py install
 # Modify default_configfile.yml to run your datasets
+
+# Install Metaxa2 from https://microbiology.se/software/metaxa2/
 
 ```
 
@@ -180,6 +184,7 @@ Profile alpha diversity using single marker genes [SingleM](https://github.com/w
 # Recomended use raw reads
 # export database variable
 export SINGLEM_METAPACKAGE_PATH='/home/user/singlem_data/S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb
+conda activate singlem
 # run singlem 
 singlem pipe \
     -1 ${RAW_R1} \
@@ -194,20 +199,27 @@ conda activate eukdetect
 eukdetect \
     --mode runall \
     --configfile [config file] \
-     --cores [cores] # Number of parallel threads that you have available
+    --cores [cores] # Number of parallel threads that you have available
 
 # Alternative eukaryote detection with Metaxa2
 metaxa2 \
-    -1 ${QC_R1} \
-    -2 ${QC_R2} \
-    -o metaxa2_output \
-    --plus T \
-    --graphical F
+    -1 ${QC_R1} \ #DNA FASTQ input file containing the first reads in the read pairs to investigate
+    -2 ${QC_R2} \ #DNA FASTQ input file containing the second reads in the pairs to investigate
+    -o metaxa2_output \ #output file
+    --format p \ #Specifies the format of the input file, p paired end
+    --plus T \ #Runs blast search through blast+ instead of the legacy blastall engine
+    -t e \ #Profile set to use for the search e eukaryota
 ```
 
 ## 4. Assembly
 
 Assemble quality-controlled reads into contigs using [MEGAHIT](https://github.com/voutcn/megahit) and [metaSPAdes](https://github.com/ablab/spades).
+
+Key advantages of MegaHit is Computational efficiency: MegaHit is optimized to use memory very efficiently, allowing large datasets to be assembled.
+
+Advantages of metaspades: Low-abundance species: Better for detecting and assembling rare organisms in the community.
+Complex downstream analyses: When you need high-quality contigs for functional annotation, binning, or phylogenetic analyses.
+
 
 ```bash
 #!/bin/bash
@@ -215,11 +227,11 @@ Assemble quality-controlled reads into contigs using [MEGAHIT](https://github.co
 # Assembly with MegaHit
 # Uses default parameters for metagenomic assembly
 megahit \
-    -1 ${QC_R1} \
-    -2 ${QC_R2} \
-    -o mat.sample \
-    --min-contig-len 1000 \
-    -t 4  # Number of threads
+    -1 ${QC_R1} \ #comma-separated list of fasta/q paired-end #1 files, paired with files in <pe2>
+    -2 ${QC_R2} \ #comma-separated list of fasta/q paired-end #2 files, paired with files in <pe2>
+    -o mat.sample \ #out dir
+    --min-contig-len 1000 \ #minimum length of contigs to output
+    -t 4  # number of CPU threads [# of logical processors]
 
 # Filter contigs >= 1000 bp
 CONTIGS="mat.sample/final.contigs.fa"
