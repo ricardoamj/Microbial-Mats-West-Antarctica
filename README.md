@@ -59,6 +59,21 @@ download_eggnog_data.py -y
     # ~3 GB for PFAM database (required if using --pfam_realign options for realignment of queries to PFAM domains).
     # The size of eggNOG diamond/mmseqs databases created with create_dbs.py is highly variable, depending on the size of the chosen taxonomic groups.
 
+# For singlem you need
+    #GTDB-Tk v2.4.1 requires ~140G of external data which needs to be downloaded and extracted.
+    #This can be done automatically, or manually.
+
+    # Automatic: Run the command "download-db.sh" to automatically download and extract to: /home/user/miniconda3/envs/singlem/share/gtdbtk-2.4.1/db/
+    # Manual: 
+        #1. Manually download the latest reference data:
+            #wget https://data.gtdb.ecogenomic.org/releases/release226/226.0/auxillary_files/gtdbtk_package/full_package/gtdbtk_r226_data.tar.gz
+
+        #2. Extract the archive to a target directory:
+            #tar -xvzf gtdbtk_r226_data.tar.gz -C "/path/to/target/db" --strip 1 > /dev/null
+            #rm gtdbtk_r226_data.tar.gz
+
+        #3. Set the GTDBTK_DATA_PATH environment variable by running:
+            #conda env config vars set GTDBTK_DATA_PATH="/path/to/target/db"
 
 ```
 
@@ -83,7 +98,7 @@ fastqc \
     ${RAW_R2}\
     -o FastQC
 
-# Check the FastQC Report for your raw_sequences, basic statistics, Per base sequence quality, Adapter Content
+# Check the FastQC Report for your raw_sequences: basic statistics, Per base sequence quality, Adapter Content
 
 # Quality control with fastp
 # - Remove adapters automatically
@@ -97,8 +112,6 @@ fastp \
     -O ${QC_R2} \
     --trim_front1 10 \
     --trim_front2 10 \
-    --dedup \
-    --dup_calc_accuracy 6 \
     --html fastp_report.html \
     --json fastp_report.json
 
@@ -125,7 +138,7 @@ kaiju \
     -i ${QC_R1} \
     -j ${QC_R2} \
     -o kaiju.out \
-    -z 4  # Number of parallel threads
+    -z 16  # Number of parallel threads that you have available
 
 # Generate taxonomic summary table at genus level
 # Includes taxonomic hierarchy from superkingdom to genus
