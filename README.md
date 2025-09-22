@@ -18,11 +18,14 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [References](#references)
 
 ## Prerequisites
-
+- FastQC v0.12.1
+- fastp 0.24.0
+- Kaiju 1.10.1
+- 
 ### Required Software
 ```bash
 # Install required tools
- mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc 
+mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc 
 # Clean shell
 mamba deactivate
 conda deactivate
@@ -36,8 +39,13 @@ wget https://mafft.cbrc.jp/alignment/software/mafft-7.525-with-extensions-src.tg
 
 ### Required Databases
 ```bash
-# Download NCBI nr database for Kaiju (2021-02 version)
-wget https://kaiju.binf.ku.dk/database/kaiju_db_nr_euk_2021-02-24.tgz
+# Download NCBI nr database for Kaiju
+# We recomended download pre-built from https://bioinformatics-centre.github.io/kaiju/downloads.html
+# for Subset of NCBI BLAST nr database containing Archaea, bacteria, viruses; additionally including fungi and microbial eukaryotes
+
+wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2021/kaiju_db_nr_euk_2021-02-24.tgz
+
+# uncompress tar gz in where a you need it
 tar -xzf kaiju_db_nr_euk_2021-02-24.tgz
 
 # Download eggNOG database
@@ -46,7 +54,7 @@ download_eggnog_data.py -y
 
 ## 1. Quality Control and Preprocessing
 
-Process raw metagenomic FASTQ files for quality control and adapter removal [fastp](https://github.com/OpenGene/fastp).
+Process raw metagenomic FASTQ files for quality control [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and adapter removal [fastp](https://github.com/OpenGene/fastp).
 
 ```bash
 #!/bin/bash
@@ -59,11 +67,19 @@ RAW_R2="raw.2.fq.gz"
 QC_R1="qc.1.fq.gz"
 QC_R2="qc.2.fq.gz"
 
+# Quality check with FastQC
+fastqc \
+    ${RAW_R1}\
+    ${RAW_R2}\
+    -o FastQC
+
+# Check the FastQC Report for your raw_sequences, basic statistics, Per base sequence quality, Adapter Content
+
 # Quality control with fastp
 # - Remove adapters automatically
 # - Filter low-quality reads
 # - Remove duplicated reads  
-# - Trim first 10 bp from both paired-end reads
+# - (In this case) Trim first 10 bp from both paired-end reads
 fastp \
     -i ${RAW_R1} \
     -o ${QC_R1} \
@@ -75,6 +91,8 @@ fastp \
     --dup_calc_accuracy 6 \
     --html fastp_report.html \
     --json fastp_report.json
+
+# Check the new report for quality control reads in fastp_report.html
 ```
 
 ## 2. Taxonomic Classification
