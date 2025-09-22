@@ -32,15 +32,17 @@ If you do not have the conda package manager installed already, follow the instr
 
 ```bash
 # Install required tools
-mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc 
+mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc metaeuk 
 # Clean shell
 mamba deactivate
 conda deactivate
 source ~/.bashrc
 mamba activate meta_pipeline
+
 # Install mafft from source
 wget https://mafft.cbrc.jp/alignment/software/mafft-7.525-with-extensions-src.tgz
 # follow the indication for non-root user [here](https://mafft.cbrc.jp/alignment/software/installation_without_root.html)
+
 # Install singleM in our env because trouble with meta_pipeline env
 mamba create -c conda-forge -c bioconda --override-channels --name singlem singlem'>='0.19.0
 # Again clean shell
@@ -169,14 +171,14 @@ singlem pipe \
     -1 ${RAW_R1} \
     -2 ${RAW_R2} \
     --otu-table otu.table.tsv \
-    --threads 4 # # Number of parallel threads that you have available
+    --threads 4 # Number of parallel threads that you have available
 
 # Eukaryote detection with EukDetect
 # Detects eukaryotic sequences in metagenomic datasets
 eukdetect \
-    --mode mags \
-    --reads ${QC_R1} ${QC_R2} \
-    --output eukdetect_output
+    --mode runall \
+    --configfile [config file] \
+     --cores [cores] # Number of parallel threads that you have available
 
 # Alternative eukaryote detection with Metaxa2
 metaxa2 \
