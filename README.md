@@ -296,14 +296,14 @@ seqtk subseq contigs.gt1k.fasta list.contigs.unclassified > contigs.gt1k.unclass
 
 # Gene prediction for eukaryotic contigs using Augustus
 augustus \
-    --species=generic \
+    --species=<your favorite model> \
     --gff3=on \
     --outfile=eukaryotic_genes.gff3 \
-    eukaryotic_contigs.fa
+    contigs.gt1k.euk.fasta
 
 # Gene prediction for prokaryotic contigs using Prodigal  
 prodigal \
-    -i prokaryotic_contigs.fa \
+    -i contigs.gt1k.prok.fasta \
     -a prokaryotic_genes.faa \
     -d prokaryotic_genes.fna \
     -o prokaryotic_genes.gff \
@@ -312,9 +312,9 @@ prodigal \
 
 # ORF prediction for unclassified contigs using EMBOSS getorf
 getorf \
-    -sequence unclassified_contigs.fa \
+    -sequence contigs.gt1k.unclass.fasta \
     -outseq unclassified_orfs.faa \
-    -minsize 300 \
+    -minsize 150 \
     -find 1  # Find all ORFs
 ```
 
