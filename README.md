@@ -33,7 +33,13 @@ We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 
 - AUGUSTUS (3.5.0)
 - PRODIGAL v2.6.3
 - getorf EMBOSS:6.6.0.0
-- 
+- MMseqs2 Version: 1046260d43f8d721041dec43a1763ecc450a6ea9
+- emapper-2.0.1
+- barrnap 0.9
+- CD-HIT version 4.8.1
+- MAFFT v7.525
+- blast 2.16.0
+- RAxML version 8.2.12 
 
 
 ### Required Software
