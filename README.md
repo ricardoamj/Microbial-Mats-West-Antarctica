@@ -18,7 +18,10 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [References](#references)
 
 ## Prerequisites
-- Miniconda
+
+We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz, 256 GB RAM
+
+- Miniconda (conda 25.7.0)
 - FastQC v0.12.1
 - fastp 0.24.0
 - Kaiju 1.10.1
