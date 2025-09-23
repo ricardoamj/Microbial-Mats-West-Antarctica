@@ -15,11 +15,12 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [6. Functional Annotation](#6-functional-annotation)
 - [7. rRNA Analysis](#7-rrna-analysis)
 - [8. Phylogenetic Reconstruction](#8-phylogenetic-reconstruction)
+- [9. Recovery bins](#9-bin-recovery)
 - [References](#references)
 
 ## Prerequisites
 
-We run our analysis in Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz, 256 GB RAM
+We run our analysis in server Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz, 256 GB RAM
 
 - Miniconda (conda 25.7.0)
 - FastQC v0.12.1
@@ -438,7 +439,11 @@ raxml \
 # Load RAxML_bipartitions.adineta_tree in FigTree
 
 ```
+## 9. Recovery bins
 
+```
+
+```
 
 ## References
 
