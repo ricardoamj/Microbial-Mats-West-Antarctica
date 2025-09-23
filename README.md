@@ -1,9 +1,40 @@
 # Microbial-Mats-West-Antarctica
+
 We employed a metagenomic approach to analyze 14 microbial mats from meltwater streams of western Antarctica, covering the Maritime, Peninsula, and Dry Valleys regions.
 
 # Metagenomic Analysis Pipeline
 
 This pipeline describes the bioinformatics workflow used for processing and analyzing metagenomic data from Antarctic microbial mats.
+
+# Our publication is [here](https://doi.org/10.1371/journal.pone.0315919)
+
+Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Cormack W, et al. (2025) What defines a photosynthetic microbial mat in western Antarctica?. PLOS ONE 20(3): e0315919. https://doi.org/10.1371/journal.pone.0315919
+
+## Pipeline Overview
+
+```mermaid
+flowchart TD
+    A[Raw Reads] --> B[Quality Control\nFastQC + MultiQC]
+    B --> C[Trimming\nfastp]
+    C --> D[Assembly\nMEGAHIT]
+
+    %% Ramas de binning
+    D --> D1[MetaBAT2]
+    D --> D2[MaxBin2]
+    D --> D3[CONCOCT]
+
+    %% Integración de bins
+    D1 --> E[Bin Refinement\nDASTool]
+    D2 --> E
+    D3 --> E
+
+    %% Resto del flujo
+    E --> F[Quality Assessment\nCheckM + GUNC]
+    F --> G[Taxonomy\nGTDB-Tk]
+    G --> H[Gene Prediction\nProdigal + Barrnap]
+    H --> I[Functional Annotation\neggNOG-mapper + METABOLIC]
+    I --> J[Additional Analyses\nKaiju + Metaxa2]
+
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -16,13 +47,13 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [7. rRNA Analysis](#7-rrna-analysis)
 - [8. Phylogenetic Reconstruction](#8-phylogenetic-reconstruction)
 - [9. Recovery bins](#9-recovery-bins)
-- [Expected Results](#expect_results)
+- [Expected Outputs](#expected_outputs)
 - [References](#references)
 
 
 ## Prerequisites
 
-We run our analysis in server Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz, 256 GB RAM
+We run our analysis on a server Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz, 256 GB RAM
 
 - Miniconda (conda 25.7.0)
 - FastQC v0.12.1
@@ -215,7 +246,7 @@ Profile alpha diversity using single marker genes [SingleM](https://github.com/w
 # Generates OTU tables from single marker genes
 # Recomended use raw reads
 # export database variable
-export SINGLEM_METAPACKAGE_PATH='/home/user/singlem_data/S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb
+export SINGLEM_METAPACKAGE_PATH='/home/user/singlem_data/S5.4.0.GTDB_r226.metapackage_20250331.smpkg.zb'
 conda activate singlem
 # run singlem 
 singlem pipe \
@@ -492,7 +523,9 @@ metabat2 -i ${CONTIGS} -a depth.txt -o metabat2_bins/bin
 run_MaxBin.pl -contig ${CONTIGS} -reads ${QC_R1} -reads2 ${QC_R2} -out maxbin2_bins/bin
 
 # Binning with CONCOCT
-# [Agregar comandos de CONCOCT]
+cut_up_fasta.py ${CONTIGS} -c 10000 -o 0 --merge_last -b contigs_10K.bed > contigs_10K.fa
+concoct_coverage_table.py contigs_10K.bed alignment_sorted.bam > coverage_table.tsv
+concoct --composition_file contigs_10K.fa --coverage_file coverage_table.tsv -b concoct_output/
 
 # Optimize bins with DAS Tool
 DAS_Tool -i metabat2_bins.txt,maxbin2_bins.txt -l MetaBAT2,MaxBin2 -c ${CONTIGS} -o das_tool_output
@@ -555,6 +588,12 @@ Seemann, T. (2018). BAsic Rapid Ribosomal RNA Predictor. Barrnap [Computer softw
 Sieber, C. M. K., Probst, A. J., Sharrar, A., Thomas, B. C., Hess, M., Tringe, S. G., & Banfield, J. F. (2018). Recovery of genomes from metagenomes via a dereplication, aggregation and scoring strategy. Nature Microbiology, 3(7), 836–843. https://doi.org/10.1038/s41564-018-0171-1
 
 Stamatakis, A. (2014). RAxML version 8: A tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30(9), 1312–1313. https://doi.org/10.1093/bioinformatics/btu033
+
+##Citation
+
+## Contact
+
+
 
 Wu, Y.-W., Simmons, B. A., & Singer, S. W. (2016). MaxBin 2.0: An automated binning algorithm to recover genomes from multiple metagenomic datasets. Bioinformatics, 32(4), 605–607. https://doi.org/10.1093/bioinformatics/btv638
 
