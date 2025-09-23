@@ -15,8 +15,10 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [6. Functional Annotation](#6-functional-annotation)
 - [7. rRNA Analysis](#7-rrna-analysis)
 - [8. Phylogenetic Reconstruction](#8-phylogenetic-reconstruction)
-- [9. Recovery bins](#9-bin-recovery)
+- [9. Recovery bins](#9-recovery-bins)
+- [Expect Results](#expect_results)
 - [References](#references)
+
 
 ## Prerequisites
 
@@ -466,14 +468,49 @@ We will obtain the bins for each of the metagenomes using [Maxbin2](https://sour
 
 Then we will use the [DAS tool](https://github.com/cmks/DAS_Tool)  to optimize redundant bins in each assembly.
 
-On the other hand, we will review the quality of the bins using [checkm](https://github.com/Ecogenomics/CheckM). And subsequently, if warranted, we will dereplicate bins that come from the same type of microorganism (at the species or strain level) with [dRep](https://github.com/MrOlm/drep).
+On the other hand, we will review the quality of the bins using [checkm](https://github.com/Ecogenomics/CheckM). 
+
+And subsequently, if warranted (Optional), we will dereplicate bins that come from the same type of microorganism (at the species or strain level) with [dRep](https://github.com/MrOlm/drep).
 
 
 ```bash
 #!/bin/bash
 
+# Map reads to contigs for coverage calculation
+bowtie2-build ${CONTIGS} contigs_index
+bowtie2 -x contigs_index -1 ${QC_R1} -2 ${QC_R2} -S alignment.sam
+samtools view -bS alignment.sam | samtools sort -o alignment_sorted.bam
+samtools index alignment_sorted.bam
+
+# Generate depth file for MetaBAT2
+jgi_summarize_bam_contig_depths --outputDepth depth.txt alignment_sorted.bam
+
+# Binning with MetaBAT2
+metabat2 -i ${CONTIGS} -a depth.txt -o metabat2_bins/bin
+
+# Binning with MaxBin2
+run_MaxBin.pl -contig ${CONTIGS} -reads ${QC_R1} -reads2 ${QC_R2} -out maxbin2_bins/bin
+
+# Binning with CONCOCT
+# [Agregar comandos de CONCOCT]
+
+# Optimize bins with DAS Tool
+DAS_Tool -i metabat2_bins.txt,maxbin2_bins.txt -l MetaBAT2,MaxBin2 -c ${CONTIGS} -o das_tool_output
+
+# Quality assessment with CheckM
+checkm lineage_wf das_tool_output checkm_output
 
 ```
+
+## Expected Outputs
+- Quality reports (FastQC, fastp)
+- Taxonomic profiles (Kaiju tables)
+- Diversity metrics (SingleM OTU tables)
+- Assembled contigs and scaffolds
+- Predicted genes and functional annotations
+- High-quality genome bins
+- Phylogenetic trees
+
 
 ## References
 
