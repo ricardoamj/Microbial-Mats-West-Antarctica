@@ -16,7 +16,7 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 - [7. rRNA Analysis](#7-rrna-analysis)
 - [8. Phylogenetic Reconstruction](#8-phylogenetic-reconstruction)
 - [9. Recovery bins](#9-recovery-bins)
-- [Expect Results](#expect_results)
+- [Expected Results](#expect_results)
 - [References](#references)
 
 
