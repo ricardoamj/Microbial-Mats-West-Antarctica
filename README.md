@@ -6,7 +6,7 @@ We employed a metagenomic approach to analyze 14 microbial mats from meltwater s
 
 This pipeline describes the bioinformatics workflow used for processing and analyzing metagenomic data from Antarctic microbial mats.
 
-# Our publication is [here](https://doi.org/10.1371/journal.pone.0315919)
+# Our full article on microbial mats in West Antarctica is available [here](https://doi.org/10.1371/journal.pone.0315919)
 
 Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Cormack W, et al. (2025) What defines a photosynthetic microbial mat in western Antarctica?. PLOS ONE 20(3): e0315919. https://doi.org/10.1371/journal.pone.0315919
 
@@ -23,7 +23,7 @@ Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Corm
 - [9. Recovery bins](#9-recovery-bins)
 - [Expected Outputs](#expected_outputs)
 - [References](#references)
-
+- [Contact](#contact)
 
 ## Prerequisites
 
@@ -134,6 +134,8 @@ singlem data --output-directory singlem_data
 ```
 
 ## 1. Quality Control and Preprocessing
+
+Ensure the quality and cleaning of raw sequences prior to analysis.
 
 Process raw metagenomic FASTQ files for quality control [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) and adapter removal [fastp](https://github.com/OpenGene/fastp).
 
@@ -563,13 +565,10 @@ Sieber, C. M. K., Probst, A. J., Sharrar, A., Thomas, B. C., Hess, M., Tringe, S
 
 Stamatakis, A. (2014). RAxML version 8: A tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30(9), 1312–1313. https://doi.org/10.1093/bioinformatics/btu033
 
-##Citation
-
-## Contact
-
-
+Stanke, M., Schöffmann, O., Morgenstern, B., & Waack, S. (2006). Gene prediction in eukaryotes with a generalized hidden Markov model that uses hints from external sources. BMC Bioinformatics, 7(1), 62. https://doi.org/10.1186/1471-2105-7-62
 
 Wu, Y.-W., Simmons, B. A., & Singer, S. W. (2016). MaxBin 2.0: An automated binning algorithm to recover genomes from multiple metagenomic datasets. Bioinformatics, 32(4), 605–607. https://doi.org/10.1093/bioinformatics/btv638
 
+## Contact
 
-Stanke, M., Schöffmann, O., Morgenstern, B., & Waack, S. (2006). Gene prediction in eukaryotes with a generalized hidden Markov model that uses hints from external sources. BMC Bioinformatics, 7(1), 62. https://doi.org/10.1186/1471-2105-7-62
+If you need to ask questions, share your opinion, or offer support, please don't hesitate to contact us at ricardoamj00[at]gmail[dot]com.
