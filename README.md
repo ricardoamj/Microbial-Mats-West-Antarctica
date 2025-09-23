@@ -12,6 +12,8 @@ Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Corm
 
 ## Pipeline Overview
 
+## Pipeline Overview
+
 ```mermaid
 flowchart TD
     A[Raw Reads] --> B[Quality Control\nFastQC + MultiQC]
@@ -34,6 +36,7 @@ flowchart TD
     G --> H[Gene Prediction\nProdigal + Barrnap]
     H --> I[Functional Annotation\neggNOG-mapper + METABOLIC]
     I --> J[Additional Analyses\nKaiju + Metaxa2]
+```
 
 
 ## Table of Contents
