@@ -40,7 +40,12 @@ We run our analysis in server Ubuntu 24.04.3 LTS, 32 core Intel(R) Xeon(R) CPU E
 - CD-HIT version 4.8.1
 - MAFFT v7.525
 - blast 2.16.0
-- RAxML version 8.2.12 
+- RAxML version 8.2.12
+- MaxBin 2.2.7
+- concoct 1.1.0
+- MetaBAT2 version 2:2.18
+- CheckM v1.2.4
+- DAS Tool 1.1.7
 
 
 ### Required Software
@@ -50,7 +55,7 @@ If you do not have the conda package manager installed already, follow the instr
 
 ```bash
 # Install required tools
-mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc metaeuk 
+mamba create -n meta_pipeline -c bioconda fastp kaiju megahit augustus prodigal mmseqs2 barrnap cd-hit blast raxml spades eggnog-mapper fastqc metaeuk seqtk  
 # Clean shell
 mamba deactivate
 conda deactivate
@@ -78,6 +83,15 @@ python setup.py install
 
 # Install Metaxa2 from https://microbiology.se/software/metaxa2/
 
+# Create binning environment in conda 
+mamba create -c conda-forge -c bioconda --override-channels --name binning spades concoct maxbin2 metabat2 quast
+conda activate binning
+pip install drep
+mamba install hmmer prodigal pplacer
+pip3 install numpy
+pip3 install matplotlib
+pip3 install pysam
+pip3 install checkm-genome
 ```
 
 ### Required Databases
@@ -105,6 +119,10 @@ download_eggnog_data.py -y
 # For singlem you need
 mamba activate singlem
 singlem data --output-directory singlem_data
+
+# For checkm you need this database
+ wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz
+
 
 ```
 
@@ -235,6 +253,9 @@ Complex downstream analyses: When you need high-quality contigs for functional a
 
 ```bash
 #!/bin/bash
+
+# Activate conda environment
+conda activate meta_pipeline
 
 # Assembly with MegaHit
 # Uses default parameters for metagenomic assembly
@@ -441,11 +462,22 @@ raxml \
 ```
 ## 9. Recovery bins
 
-```
+We will obtain the bins for each of the metagenomes using [Maxbin2](https://sourceforge.net/projects/maxbin2/), [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/), and [CONCOCT](https://github.com/BinPro/CONCOCT).
+
+Then we will use the [DAS tool](https://github.com/cmks/DAS_Tool)  to optimize redundant bins in each assembly.
+
+On the other hand, we will review the quality of the bins using [checkm](https://github.com/Ecogenomics/CheckM). And subsequently, if warranted, we will dereplicate bins that come from the same type of microorganism (at the species or strain level) with [dRep](https://github.com/MrOlm/drep).
+
+
+```bash
+#!/bin/bash
+
 
 ```
 
 ## References
+
+Alneberg, J., Bjarnason, B. S., de Bruijn, I., Schirmer, M., Quick, J., Ijaz, U. Z., Lahti, L., Loman, N. J., Andersson, A. F., & Quince, C. (2014). Binning metagenomic contigs by coverage and composition. Nature Methods, 11(11), 1144–1146. https://doi.org/10.1038/nmeth.3103
 
 Altschul, S. F., Gish, W., Miller, W., Myers, E. W., & Lipman, D. J. (1990). Basic local alignment search tool. Journal of Molecular Biology, 215(3), 403–410. https://doi.org/10.1016/S0022-2836(05)80360-2
 
@@ -461,6 +493,8 @@ Huerta-Cepas, J., Szklarczyk, D., Heller, D., Hernández-Plaza, A., Forslund, S.
 
 Hyatt, D., Chen, G.-L., LoCascio, P. F., Land, M. L., Larimer, F. W., & Hauser, L. J. (2010). Prodigal: Prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics, 11(1), 119. https://doi.org/10.1186/1471-2105-11-119
 
+Kang, D. D., Li, F., Kirton, E., Thomas, A., Egan, R., An, H., & Wang, Z. (2019). MetaBAT 2: An adaptive binning algorithm for robust and efficient genome reconstruction from metagenome assemblies. PeerJ, 7, e7359. https://doi.org/10.7717/peerj.7359
+
 Li, D., Liu, C.-M., Luo, R., Sadakane, K., & Lam, T.-W. (2015). MEGAHIT: An ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph. Bioinformatics, 31(10), 1674–1676. https://doi.org/10.1093/bioinformatics/btv033
 
 Li, W., & Godzik, A. (2006). Cd-hit: A fast program for clustering and comparing large sets of protein or nucleotide sequences. Bioinformatics, 22(13), 1658–1659. https://doi.org/10.1093/bioinformatics/btl158
@@ -468,6 +502,10 @@ Li, W., & Godzik, A. (2006). Cd-hit: A fast program for clustering and comparing
 Lind, A. L., & Pollard, K. S. (2021). Accurate and sensitive detection of microbial eukaryotes from whole metagenome shotgun sequencing. Microbiome, 9(1), 58. https://doi.org/10.1186/s40168-021-01015-y
 
 Menzel, P., Ng, K. L., & Krogh, A. (2016). Fast and sensitive taxonomic classification for metagenomics with Kaiju. Nature Communications, 7(1), 11257. https://doi.org/10.1038/ncomms11257
+
+Olm, M. R., Brown, C. T., Brooks, B., & Banfield, J. F. (2017). dRep: A tool for fast and accurate genomic comparisons that enables improved genome recovery from metagenomes through de-replication. The ISME Journal, 11(12), 2864–2868. https://doi.org/10.1038/ismej.2017.126
+
+Parks, D. H., Imelfort, M., Skennerton, C. T., Hugenholtz, P., & Tyson, G. W. (2015). CheckM: Assessing the quality of microbial genomes recovered from isolates, single cells, and metagenomes. Genome Research, 25(7), 1043–1055. https://doi.org/10.1101/gr.186072.114
 
 Quast, C., Pruesse, E., Yilmaz, P., Gerken, J., Schweer, T., Yarza, P., Peplies, J., & Glöckner, F. O. (2013). The SILVA ribosomal RNA gene database project: Improved data processing and web-based tools. Nucleic Acids Research, 41(D1), D590–D596. https://doi.org/10.1093/nar/gks1219
 
@@ -477,6 +515,11 @@ Sayers, E. W., Bolton, E. E., Brister, J. R., Canese, K., Chan, J., Comeau, D. C
 
 Seemann, T. (2018). BAsic Rapid Ribosomal RNA Predictor. Barrnap [Computer software]. https://github.com/tseemann/barrnap
 
+Sieber, C. M. K., Probst, A. J., Sharrar, A., Thomas, B. C., Hess, M., Tringe, S. G., & Banfield, J. F. (2018). Recovery of genomes from metagenomes via a dereplication, aggregation and scoring strategy. Nature Microbiology, 3(7), 836–843. https://doi.org/10.1038/s41564-018-0171-1
+
 Stamatakis, A. (2014). RAxML version 8: A tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30(9), 1312–1313. https://doi.org/10.1093/bioinformatics/btu033
+
+Wu, Y.-W., Simmons, B. A., & Singer, S. W. (2016). MaxBin 2.0: An automated binning algorithm to recover genomes from multiple metagenomic datasets. Bioinformatics, 32(4), 605–607. https://doi.org/10.1093/bioinformatics/btv638
+
 
 Stanke, M., Schöffmann, O., Morgenstern, B., & Waack, S. (2006). Gene prediction in eukaryotes with a generalized hidden Markov model that uses hints from external sources. BMC Bioinformatics, 7(1), 62. https://doi.org/10.1186/1471-2105-7-62
