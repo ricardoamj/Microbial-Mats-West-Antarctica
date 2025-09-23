@@ -10,35 +10,6 @@ This pipeline describes the bioinformatics workflow used for processing and anal
 
 Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Cormack W, et al. (2025) What defines a photosynthetic microbial mat in western Antarctica?. PLOS ONE 20(3): e0315919. https://doi.org/10.1371/journal.pone.0315919
 
-## Pipeline Overview
-
-## Pipeline Overview
-
-```mermaid
-flowchart TD
-    A[Raw Reads] --> B[Quality Control\nFastQC + MultiQC]
-    B --> C[Trimming\nfastp]
-    C --> D[Assembly\nMEGAHIT]
-
-    %% Ramas de binning
-    D --> D1[MetaBAT2]
-    D --> D2[MaxBin2]
-    D --> D3[CONCOCT]
-
-    %% Integración de bins
-    D1 --> E[Bin Refinement\nDASTool]
-    D2 --> E
-    D3 --> E
-
-    %% Resto del flujo
-    E --> F[Quality Assessment\nCheckM + GUNC]
-    F --> G[Taxonomy\nGTDB-Tk]
-    G --> H[Gene Prediction\nProdigal + Barrnap]
-    H --> I[Functional Annotation\neggNOG-mapper + METABOLIC]
-    I --> J[Additional Analyses\nKaiju + Metaxa2]
-```
-
-
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [1. Quality Control and Preprocessing](#1-quality-control-and-preprocessing)
