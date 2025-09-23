@@ -571,4 +571,4 @@ Wu, Y.-W., Simmons, B. A., & Singer, S. W. (2016). MaxBin 2.0: An automated binn
 
 ## Contact
 
-If you need to ask questions, share your opinion, or offer support, please don't hesitate to contact us at ricardoamj00[at]gmail[dot]com.
+If you have questions, want to share your opinion, or offer support, please contact us at ricardoamj00[at]gmail[dot]com.
