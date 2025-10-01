@@ -305,9 +305,9 @@ kaiju \
     -f kaiju_db_nr_euk.fmi \
     -i output.gt1k.contigs.fasta \
     -o kaiju.classification \
-    -e 2 -m 15 -s 70 -E 1e-06 \
+    -e 2 -m 30 -s 70 -E 1e-06 \
         #run mode: Greedy
-         # minimum match length: 15
+         # minimum match length: 30
          # seed length: 7
          # minimum blosum62 score for matches: 70
          # minimum E-value: 1e-06
