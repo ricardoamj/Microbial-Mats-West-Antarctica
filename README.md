@@ -21,7 +21,7 @@ Mercado-Juárez RA, Valdespino-Castillo PM, Merino Ibarra M, Batista S, Mac Corm
 - [7. rRNA Analysis](#7-rrna-analysis)
 - [8. Phylogenetic Reconstruction](#8-phylogenetic-reconstruction)
 - [9. Recovery bins](#9-recovery-bins)
-- [Expected Outputs](#expected_outputs)
+- [Expected Outputs](#expected-outputs)
 - [References](#references)
 - [Contact](#contact)
 
